@@ -28,7 +28,7 @@ metadata {
     standardTile("zone", "device.alarmState", width: 2, height: 2, canChangeBackground: true, canChangeIcon: true) {
       state "clear",  label: 'clear',  icon: "st.alarm.smoke.clear", backgroundColor: "#ffffff"
       state "smoke",  label: 'SMOKE',  icon: "st.alarm.smoke.smoke", backgroundColor: "#e86d13"
-      state "bypassed",  label: 'clear',  icon: "st.alarm.smoke.smoke", backgroundColor: "#ffffff"
+      state "bypassed",  label: 'bypassed',  icon: "st.alarm.smoke.smoke", backgroundColor: "#ffffff"
     }
 
     // This tile will be the tile that is displayed on the Hub page.
