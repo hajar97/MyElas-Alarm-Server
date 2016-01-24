@@ -24,8 +24,6 @@ import sys
 
 from MyElasDefs import elas_ResponseTypes
 
-LOGTOFILE = False
-
 class CodeError(Exception): pass
 
 ALARMSTATE={'version' : 0.1, 'devices' : {}}
@@ -64,16 +62,10 @@ class AlarmServerConfig():
         self.MYELASUSER = self.read_config_var('myelas', 'user', 'user', 'str')
         self.MYELASPASS = self.read_config_var('myelas', 'pass', 'pass', 'str')
         self.ALARMCODE = self.read_config_var('myelas', 'alarmcode', 1111, 'int')
-        self.LOGFILE = self.read_config_var('alarmserver', 'logfile', '', 'str')
         self.CALLBACKURL_BASE = self.read_config_var('alarmserver', 'callbackurl_base', '', 'str')
         self.CALLBACKURL_APP_ID = self.read_config_var('alarmserver', 'callbackurl_app_id', '', 'str')
         self.CALLBACKURL_ACCESS_TOKEN = self.read_config_var('alarmserver', 'callbackurl_access_token', '', 'str')
         self.CALLBACKURL_EVENT_CODES = self.read_config_var('alarmserver', 'callbackurl_event_codes', '', 'str')
-        global LOGTOFILE
-        if self.LOGFILE == '':
-            LOGTOFILE = False
-        else:
-            LOGTOFILE = True
 
         self.ZONENAMES={}
         for i in range(1, MAXZONES+1):
