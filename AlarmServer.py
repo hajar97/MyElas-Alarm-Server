@@ -260,7 +260,6 @@ class MyElasClient(requests.Session):
                 if bypassed is True : code = 220
             zone_number = id
             event = getMessageType(code)
-            event['type'] = 'zone'
 
             # Handle zone event
             logger.info("Handle zone event: " + str(code) + ", from zone: " + name)
@@ -284,14 +283,15 @@ class MyElasClient(requests.Session):
             return
 
         event = getMessageType(code)
-        event['type'] = 'panel'
+        message = ''
         # If there were any errors arming, send them as push notification
         if LATESTALARMSTATE.get('armFailures') is not None:
-            event['message'] = LATESTALARMSTATE['armFailures']['text']
+            message = LATESTALARMSTATE['armFailures']['text']
+            logger.info("Arm failure message recorded: " + message)
 
         # Handle panel event
         logger.info("Handle panel event: " + str(code))
-        self.handle_event(code, self._config.PANELNUMBER, event)
+        self.handle_event(code, self._config.PANELNUMBER, event, message)
 
         # TODO: Test other states of zones apart from the two implemented
         # TODO: Find a way of arming panel from iOS app
@@ -306,7 +306,7 @@ class MyElasClient(requests.Session):
             threading.Timer(self._config.POLLRATE, self.panelStatusUpdate).start()
             self.send_command('https://www.myelas.com/ELAS/WebUI/Security/GetCPState', None, None, None)
 
-    def handle_event(self, code, zone_or_panel_number, event):
+    def handle_event(self, code, zone_or_panel_number, event, message = ''):
         panel_state_changed = False
         network_id = event['type'] + str(zone_or_panel_number)
         if network_id not in ALARMSTATE['devices']:
@@ -317,16 +317,16 @@ class MyElasClient(requests.Session):
             panel_state_changed = True
 
         if panel_state_changed is True:
-            self.callbackurl_event(code, zone_or_panel_number, event)
+            self.callbackurl_event(code, zone_or_panel_number, event, message)
 
-    def callbackurl_event(self, code, zone_or_panel_number, event):
+    def callbackurl_event(self, code, zone_or_panel_number, event, message):
         myEvents = self._config.CALLBACKURL_EVENT_CODES.split(',')
         # Determin what events we are sending to smartthings then send if we match
         if str(code) in myEvents:
            # Now check if Zone has a custom name, if it does then send notice to Smartthings
            # Check for event type
            if event['type'] == 'panel':
-               message = event.get('message','')
+               logger.info("Callback message: " + message);
                myURL = self._config.CALLBACKURL_BASE + "/" + self._config.CALLBACKURL_APP_ID + "/panel/" + str(code) + "/" + str(zone_or_panel_number) + \
                        "/" + message + "?access_token=" + self._config.CALLBACKURL_ACCESS_TOKEN
                logger.info("Executing callback: " + myURL)
